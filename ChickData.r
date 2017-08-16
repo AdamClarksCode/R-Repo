@@ -1,11 +1,16 @@
+install.packages("ggplot2")
+library(ggplot2)
 data(ChickWeight)
 chicklist = list()
 for(chicken in 1:50){
   tempSet <- subset(ChickWeight, Chick == chicken)
-  chickDiet <- tempSet$Diet[[1]]
+  chickDiet <- head(tempSet$Diet, n=1)
   sumWieght <- sum(tempSet$weight)
   sumTime <- sum(tempSet$Time)
-  tempFrame <- data.frame(chicken, sumWieght, sumTime, chickDiet)
+  past <- tempSet$weight[[1]]
+  present <- tail(tempSet$weight, n=1)
+  growthRate <- (((present-past)/past)*100)
+  tempFrame <- data.frame(chicken, sumWieght, sumTime, chickDiet, growthRate)
   chicklist[[chicken]] <- tempFrame
 }
 chickFrame = do.call(rbind, chicklist)
@@ -14,4 +19,4 @@ plot(sumWieght~chicken,
      data=chickFrame,
      pch= c(15, 16, 17, 18)[as.numeric(chickDiet)],
      col = c("black", "red", "blue", "green")[as.numeric(chickDiet)])
-hist(chickFrame$sumWieght)
+qplot(chicken, growthRate, data = chickFrame, colour = chickDiet)
